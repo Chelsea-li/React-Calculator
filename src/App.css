@@ -33,9 +33,11 @@ span{
   grid-column: 1/3;
 }
 
-.button{
+.btn-button{
   background-color: #993636;
   color:white;
   text-align: center;
   line-height: 80px;
+  padding:0px;
+  border-width: 0px;
 }

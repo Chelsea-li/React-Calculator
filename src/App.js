@@ -1,114 +1,162 @@
 import React, { Component } from 'react';
-import Numberbutton from './Numberbutton.js';
-
 import './App.css';
-
-
 
 class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      before: "0",
-      display: "0"
+      bottom: "0",
+      top: '',
+      waiting: false,
+      operator:'',
+      firstnumber:''
     }
-    //this.showNumber = this.showNumber.bind(this);
-   /*  this.delete = this.delete.bind(this);
-    this.clear = this.clear.bind(this);
-    this.minus = this.minus.bind(this);
-    this.decimal = this.decimal.bind(this); */
+  }
+  
+  showNumber(digit){
+    const {bottom, waiting, firstnumber, operator} = this.state;
+    if(waiting){
+      this.setState({
+        bottom:digit,
+        waiting: false,
+        firstnumber: bottom,
+      })
+    } else {
+      this.setState({
+        bottom: bottom === '0'? digit: bottom+digit,
+      })
+    }
   }
 
-  showNumber = (event) => {
-    let number = '0';
-    if((this.state.display).length === 1 && this.state.display === "0"){
-      number = this.state.display.replace('0',event.target.innerHTML);
-    } else {
-      number = this.state.before+event.target.innerHTML;
-    }
+  operator=(op)=>{
+    const {bottom, top, waiting, operator} = this.state;
     this.setState({
-      display: number,
-      before: number
+      waiting:true,
+      operator: op,
+      top:top+bottom+op
+    })  
+  }
+
+  performCaculate=()=>{
+    const{bottom, operator, firstnumber} = this.state;
+    let result = '';
+    const operation = {
+      '+': (prenumber, nextnumber) => prenumber+nextnumber,
+      '-': (prenumber, nextnumber) => prenumber-nextnumber,
+      'X': (prenumber, nextnumber) => prenumber*nextnumber,
+      '/': (prenumber, nextnumber) => prenumber/nextnumber,
+    }
+    if(operator){
+      this.setState({
+        bottom: String(operation[operator](parseFloat(firstnumber), parseFloat(bottom))),
+        operator:'',
+        firstnumber:''
+      })
+    }
+  }
+
+  decimal=()=>{
+    const {bottom, waiting, firstnumber} = this.state;
+    if(waiting){
+      this.setState({
+        bottom:'.',
+        waiting: false,
+        firstnumber: bottom
+      })
+    } else {
+      if(bottom.indexOf('.')===-1){
+        this.setState({
+          bottom: bottom+'.'
+        })
+      }
+    }
+  }
+
+  toggle=()=>{
+    const {bottom} = this.state;
+    this.setState({
+      bottom: bottom.charAt(0)==='-'?bottom.substr(1):bottom.charAt(0) === '0'
+      && bottom.length < 3? bottom : '-'+bottom
     })
   }
 
   delete = () => {
     let number = '0';
-    if((this.state.display).length === 1 && this.state.display === "0"){
+    if((this.state.bottom).length === 1 && this.state.bottom === "0"){
       number = '0';
-    } else if((this.state.display).length === 1 && this.state.display !== "0"){
+    } else if((this.state.bottom).length === 1 && this.state.bottom !== "0"){
       number = '0';
     }else {
-      number = this.state.display.slice(0,-1);
+      number = this.state.bottom.slice(0,-1);
     }
     this.setState({
-      display: number,
-      before: number
+      bottom: number,
+      top: number
     })
   }  
 
   clear = (event) => {
     this.setState({
-      display: '0',
-      before: '0'
+      bottom: '0',
+      top: '',
+      operator: '',
+      waiting: false,
+      firstnumber: ''
     })
   }
 
-  minus = (event) => {
-    let number = '0';
-    if((this.state.display).charAt(0) === '-'){
-      number = this.state.display.slice(1);
-    } else {
-      number = '-'+this.state.display;
-    }
+  percent = () =>{
+    const {bottom} = this.state;
+    let value = parseFloat(bottom);
     this.setState({
-      display: number,
-      before: number
+      bottom: String(value/100)
     })
   }
 
-  decimal = (event) => {
-    let number = '0';
-    if(this.state.display.indexOf('.') === -1){
-      number = this.state.before+event.target.innerHTML;
-      this.setState({
-        display: number,
-        before: number
-      })
-    } 
-  }
 
-  getResult = () => {
-    
-  }
-
-  //ids are no need to have here, but it's required by FCC
   render() {
-    const {display, before} = this.state;
+    const {bottom, top} = this.state;
     return (
       <div className="container">
-        <div className="display1"><span>{before}</span></div>
-        <div className="display2"><span>{display}</span></div>
-        <Numberbutton number={'AC'} clsname={'button'} ids={'clear'} handler={this.clear}/>
-        <Numberbutton number={'+ / -'} clsname={'button'} ids={''} handler={this.minus}/>
-        <Numberbutton number={'D'} clsname={'button'} ids={''} handler={this.delete}/>
-        <Numberbutton number={'/'} clsname={'button'} ids={'divide'} handler={this.showNumber}/>
-        <Numberbutton number={'7'} clsname={'button'} ids={'seven'} handler={this.showNumber}/>
-        <Numberbutton number={'8'} clsname={'button'} ids={'eight'} handler={this.showNumber}/>
-        <Numberbutton number={'9'} clsname={'button'} ids={'nine'} handler={this.showNumber}/>
-        <Numberbutton number={'x'} clsname={'button'} ids={'multiply'} handler={this.showNumber}/>
-        <Numberbutton number={'4'} clsname={'button'} ids={'four'} handler={this.showNumber}/>
-        <Numberbutton number={'5'} clsname={'button'} ids={'five'} handler={this.showNumber}/>
-        <Numberbutton number={'6'} clsname={'button'} ids={'six'} handler={this.showNumber}/>
-        <Numberbutton number={'-'} clsname={'button'} ids={'substract'} handler={this.showNumber}/>   
-        <Numberbutton number={'1'} clsname={'button'} ids={'one'} handler={this.showNumber}/>
-        <Numberbutton number={'2'} clsname={'button'} ids={'two'} handler={this.showNumber}/>
-        <Numberbutton number={'3'} clsname={'button'} ids={'three'} handler={this.showNumber}/>
-        <Numberbutton number={'+'} clsname={'button'} ids={'add'} handler={this.showNumber}/>
-        <Numberbutton number={'0'} clsname={'button zero'} ids={'zero'} handler={this.showNumber}/>
-        <Numberbutton number={'.'} clsname={'button'} ids={'decimal'} handler={this.decimal}/>
-        <Numberbutton number={'='} clsname={'button'} ids={'equals'} handler={this.getResult}/>
+        <div className="display1"><Topdisplay numbers={this.state} ></Topdisplay></div>
+        <div className="display2"><span>{bottom}</span></div>
+        <button className='btn-button' id='clear' onClick={this.clear}>AC</button>
+        <button className='btn-button' onClick={this.toggle}>+/-</button>
+        <button className='btn-button' onClick={this.percent}>%</button>
+        <button className='btn-button' id='divide' onClick={()=>{this.operator('/')}}>/</button>
+        <button className='btn-button' id='seven' onClick={()=>this.showNumber('7')}>7</button>
+        <button className='btn-button' id='eight' onClick={()=>this.showNumber('8')}>8</button>
+        <button className='btn-button' id='nine' onClick={()=>this.showNumber('9')}>9</button>
+        <button className='btn-button' id='multiply' onClick={()=>{this.operator('X')}}>X</button>
+        <button className='btn-button' id='four' onClick={()=>this.showNumber('4')}>4</button>
+        <button className='btn-button' id='five' onClick={()=>this.showNumber('5')}>5</button>
+        <button className='btn-button' id='six' onClick={()=>this.showNumber('6')}>6</button>
+        <button className='btn-button' id='substract' onClick={()=>{this.operator('-')}}>-</button>
+        <button className='btn-button' id='one' onClick={()=>this.showNumber('1')}>1</button>
+        <button className='btn-button' id='two' onClick={()=>this.showNumber('2')}>2</button>
+        <button className='btn-button' id='three' onClick={()=>this.showNumber('3')}>3</button>
+        <button className='btn-button' id='add' onClick={()=>{this.operator('+')}}>+</button>
+        <button className='btn-button zero' id='zero' onClick={()=>this.showNumber('0')}>0</button>
+        <button className='btn-button' id='decimal' onClick={this.decimal}>.</button>
+        <button className='btn-button' id='equals' onClick={this.performCaculate}>=</button>
+        <div><span>
+          <pre>
+            {JSON.stringify(this.state,null,1)}
+          </pre>
+          </span></div>
     </div>
+    );
+  }
+}
+
+class Topdisplay extends Component{
+  constructor(){
+    super();
+  }
+  render(){
+    const {top} = this.props.numbers;
+    return(
+      <span>{top}</span>
     );
   }
 }
