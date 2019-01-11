@@ -178,14 +178,6 @@ class App extends Component {
     );
   }
 }
-class Topdisplay extends Component{
-  render(){
-    return (
-      <span 
-      {...this.props}/>
-      )
-  }
-}
 
 class AutoShrinkText extends Component{
     state = {
@@ -196,8 +188,6 @@ class AutoShrinkText extends Component{
     const {proportion} = this.state;
     const actualWidth = this.element.offsetWidth;
     const parentWidth = this.element.parentNode.offsetWidth;
-    console.log(this.element);
-    console.log(actualWidth, parentWidth);
     const actualProportion = parentWidth/actualWidth;
     if(actualProportion === proportion)
     return
